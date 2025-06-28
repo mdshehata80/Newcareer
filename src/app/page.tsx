@@ -72,9 +72,9 @@ export default function Home() {
     let userFriendlyError = "An unexpected error occurred with the AI service. Please try again later.";
     let toastDescription = "An unexpected error occurred.";
 
-    if (message.includes('google_ai_api_key') || message.includes('secret') || message.includes('permission')) {
-        userFriendlyError = "There is a configuration error with your API key. Please ensure the GOOGLE_AI_API_KEY secret exists in Secret Manager, has a value, and that your App Hosting backend has the 'Secret Manager Secret Accessor' role for it.";
-        toastDescription = "Missing API Key or permissions.";
+    if (message.includes('resolve secret') || message.includes('permission denied')) {
+        userFriendlyError = "Could not access the GOOGLE_AI_API_KEY. Please verify two things in the Google Cloud Console: 1) The secret exists in Secret Manager and has an enabled Version 1 with the correct API key value. 2) Your backend's service account has the 'Secret Manager Secret Accessor' role.";
+        toastDescription = "API Key configuration error.";
     } else if (message.includes('api key not valid')) {
         userFriendlyError = "The provided Google AI API Key is not valid. Please check the value in Secret Manager and try again.";
         toastDescription = "Invalid API Key.";
