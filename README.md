@@ -16,5 +16,4 @@ To get started, take a look at `src/app/page.tsx`. You will need to create a `.e
 4.  App Hosting will automatically build and deploy your application upon every push to the `main` branch.
 
 The connection is now fully configured and ready for deployment!
-
 <!-- Final test commit -->
