@@ -94,6 +94,7 @@ export default function Home() {
     }
     setIsGeneratingQuestion(true);
     setError(null);
+    setFeedback(null);
     try {
       const { question: generatedQuestion } = await generateInterviewQuestion(jobRole);
       setQuestion(generatedQuestion);
