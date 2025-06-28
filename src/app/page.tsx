@@ -75,9 +75,9 @@ export default function Home() {
     if (message.includes('resolve secret') || message.includes('permission denied')) {
         userFriendlyError = "Could not access the GOOGLE_AI_API_KEY. Please verify two things in the Google Cloud Console: 1) The secret exists in Secret Manager and has an enabled Version 1 with the correct API key value. 2) Your backend's service account has the 'Secret Manager Secret Accessor' role.";
         toastDescription = "API Key configuration error.";
-    } else if (message.includes('api key not valid')) {
-        userFriendlyError = "The provided Google AI API Key is not valid. Please check the value in Secret Manager and try again.";
-        toastDescription = "Invalid API Key.";
+    } else if (message.includes('api key not valid') || message.includes('api key not found')) {
+        userFriendlyError = "The provided Google AI API Key is not valid or is restricted. Please check the value in Secret Manager, ensure it's unrestricted in 'APIs & Services -> Credentials', and try again.";
+        toastDescription = "Invalid or restricted API Key.";
     } else if (message.includes('quota')) {
         userFriendlyError = "You have exceeded your API quota. Please check your Google Cloud project billing and quotas.";
         toastDescription = "API quota exceeded.";
