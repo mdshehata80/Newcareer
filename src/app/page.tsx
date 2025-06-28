@@ -68,8 +68,8 @@ export default function Home() {
   const handleApiError = (err: unknown) => {
     console.error("API Error:", err);
     const message = err instanceof Error ? err.message : String(err);
-    if (message.includes('GOOGLE_AI_API_KEY')) {
-        const desc = "The Google AI API Key is not configured correctly. In your Google Cloud project, go to 'IAM & Admin' to find your backend's service account email. Then, go to 'Secret Manager', find the GOOGLE_AI_API_KEY secret, and grant that service account the 'Secret Manager Secret Accessor' role.";
+    if (message.includes('GOOGLE_AI_API_KEY') || message.includes('secret')) {
+        const desc = "The Google AI API Key is not configured correctly. In your Google Cloud project, go to the IAM page to find your backend's service account email. Then, go to Secret Manager, find the GOOGLE_AI_API_KEY secret, and grant that service account the 'Secret Manager Secret Accessor' role. It may take a minute for permissions to apply.";
         setError(desc);
         toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key or permissions." });
     } else {

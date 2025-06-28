@@ -1,4 +1,4 @@
-# Firebase Studio - MockInterviewer
+# Firebase Studio - LinguaLens
 
 This is a NextJS starter project for Firebase Studio that helps you practice for job interviews.
 
@@ -17,4 +17,4 @@ To get started, take a look at `src/app/page.tsx`. You will need to create a `.e
 
 The connection is now fully configured and ready for deployment!
 
-<!-- This is a comment to trigger a new build -->
+<!-- Final test commit -->
