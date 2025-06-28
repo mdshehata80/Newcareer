@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'AI Interview Coach',
+  title: 'LinguaLens: AI Interview Coach',
   description: 'Practice your interview skills with AI-powered feedback.',
 };
 
