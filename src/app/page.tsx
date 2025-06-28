@@ -67,10 +67,11 @@ export default function Home() {
   
   const handleApiError = (err: unknown) => {
     console.error("API Error:", err);
-    if (err instanceof Error && err.message.includes('GOOGLE_AI_API_KEY')) {
-        const desc = "The Google AI API Key is not configured. Please add the secret in your Firebase App Hosting settings.";
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes('GOOGLE_AI_API_KEY')) {
+        const desc = "The Google AI API Key is not configured. Please add the secret in your Firebase App Hosting settings and ensure the backend has permission to access it.";
         setError(desc);
-        toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key." });
+        toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key or permissions." });
     } else {
         setError("An unexpected error occurred with the AI service. Please try again later.");
         toast({ variant: "destructive", title: "Service Error", description: "An unexpected error occurred." });
@@ -248,7 +249,7 @@ export default function Home() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-2xl">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary font-headline">MockInterviewer Pro</h1>
+          <h1 className="text-4xl font-bold text-primary font-headline">AI Interview Coach</h1>
           <p className="text-muted-foreground mt-2 font-body">Practice your interview skills with AI-powered feedback.</p>
         </header>
 
