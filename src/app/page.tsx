@@ -69,7 +69,7 @@ export default function Home() {
     console.error("API Error:", err);
     const message = err instanceof Error ? err.message : String(err);
     if (message.includes('GOOGLE_AI_API_KEY')) {
-        const desc = "The Google AI API Key is not configured. Please add the secret in your Firebase App Hosting settings and ensure the backend has permission to access it.";
+        const desc = "The Google AI API Key is not configured correctly. In your Google Cloud project, go to 'IAM & Admin' to find your backend's service account email. Then, go to 'Secret Manager', find the GOOGLE_AI_API_KEY secret, and grant that service account the 'Secret Manager Secret Accessor' role.";
         setError(desc);
         toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key or permissions." });
     } else {
