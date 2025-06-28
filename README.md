@@ -10,8 +10,9 @@ To get started, take a look at `src/app/page.tsx`. You will need to create a `.e
 
 ## Deployment
 
-1.  Push your code to the `main` branch of your connected GitHub repository.
-2.  Ensure you have added the `GOOGLE_AI_API_KEY` as a secret in your Firebase App Hosting backend settings.
-3.  App Hosting will automatically build and deploy your application upon every push to the `main` branch.
+1.  Connect your GitHub repository.
+2.  Create a backend in Firebase App Hosting.
+3.  Ensure you have added the `GOOGLE_AI_API_KEY` as a secret in your Firebase App Hosting backend settings and granted the backend's service account the "Secret Manager Secret Accessor" role.
+4.  App Hosting will automatically build and deploy your application upon every push to the `main` branch.
 
 Ready for version control!
