@@ -68,8 +68,8 @@ export default function Home() {
   const handleApiError = (err: unknown) => {
     console.error("API Error:", err);
     const message = err instanceof Error ? err.message : String(err);
-    if (message.includes('GOOGLE_AI_API_KEY') || message.includes('secret')) {
-        const desc = "The Google AI API Key is not configured correctly. In your Google Cloud project, go to the IAM page to find your backend's service account email. Then, go to Secret Manager, find the GOOGLE_AI_API_KEY secret, and grant that service account the 'Secret Manager Secret Accessor' role. It may take a minute for permissions to apply.";
+    if (message.includes('GOOGLE_AI_API_KEY') || message.includes('secret') || message.includes('permission')) {
+        const desc = "The GOOGLE_AI_API_KEY is missing or the backend does not have permission to access it. Go to the IAM page in Google Cloud, find your backend's service account (it looks like `firebase-app-hosting-compute@...`), and ensure it has the 'Secret Manager Secret Accessor' role for your secret.";
         setError(desc);
         toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key or permissions." });
     } else {
@@ -249,8 +249,8 @@ export default function Home() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-2xl">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary font-headline">LinguaLens</h1>
-          <p className="text-muted-foreground mt-2 font-body">Practice your interview skills with AI-powered feedback.</p>
+          <h1 className="text-4xl font-bold text-primary font-headline">LinguaLens: Interview Practice Platform</h1>
+          <p className="text-muted-foreground mt-2 font-body">Your AI-powered coach for mastering interviews.</p>
         </header>
 
         <Card className="w-full shadow-lg">
