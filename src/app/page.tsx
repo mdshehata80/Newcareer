@@ -67,15 +67,24 @@ export default function Home() {
   
   const handleApiError = (err: unknown) => {
     console.error("API Error:", err);
-    const message = err instanceof Error ? err.message : String(err);
-    if (message.includes('GOOGLE_AI_API_KEY') || message.includes('secret') || message.includes('permission')) {
-        const desc = "The GOOGLE_AI_API_KEY is missing or the backend does not have permission to access it. Go to the IAM page in Google Cloud, find your backend's service account (it looks like `firebase-app-hosting-compute@...`), and ensure it has the 'Secret Manager Secret Accessor' role for your secret.";
-        setError(desc);
-        toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key or permissions." });
-    } else {
-        setError("An unexpected error occurred with the AI service. Please try again later.");
-        toast({ variant: "destructive", title: "Service Error", description: "An unexpected error occurred." });
+    const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+    
+    let userFriendlyError = "An unexpected error occurred with the AI service. Please try again later.";
+    let toastDescription = "An unexpected error occurred.";
+
+    if (message.includes('google_ai_api_key') || message.includes('secret') || message.includes('permission')) {
+        userFriendlyError = "There is a configuration error with your API key. Please ensure the GOOGLE_AI_API_KEY secret exists in Secret Manager, has a value, and that your App Hosting backend has the 'Secret Manager Secret Accessor' role for it.";
+        toastDescription = "Missing API Key or permissions.";
+    } else if (message.includes('api key not valid')) {
+        userFriendlyError = "The provided Google AI API Key is not valid. Please check the value in Secret Manager and try again.";
+        toastDescription = "Invalid API Key.";
+    } else if (message.includes('quota')) {
+        userFriendlyError = "You have exceeded your API quota. Please check your Google Cloud project billing and quotas.";
+        toastDescription = "API quota exceeded.";
     }
+
+    setError(userFriendlyError);
+    toast({ variant: "destructive", title: "Service Error", description: toastDescription });
   }
 
   const handleGenerateQuestion = async () => {
@@ -249,7 +258,7 @@ export default function Home() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-2xl">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary font-headline">LinguaLens: Interview Practice Platform</h1>
+          <h1 className="text-4xl font-bold text-primary font-headline">LinguaLens: AI Interview Coach</h1>
           <p className="text-muted-foreground mt-2 font-body">Your AI-powered coach for mastering interviews.</p>
         </header>
 
@@ -301,9 +310,10 @@ export default function Home() {
 
             <div className="space-y-2">
               <label htmlFor="model-answer-input" className="font-semibold text-lg font-headline">2. Model Answer (Optional)</label>
+              <p className="text-sm text-muted-foreground">Provide an ideal answer to the question for more accurate feedback.</p>
               <Textarea 
                 id="model-answer-input"
-                placeholder="Provide an ideal answer to the question for more accurate feedback." 
+                placeholder="e.g., In my previous role at XYZ Corp..." 
                 value={modelAnswer}
                 onChange={(e) => setModelAnswer(e.target.value)}
                 className="min-h-[80px] text-base"
@@ -372,7 +382,7 @@ export default function Home() {
                         disabled={!!speakingFeedbackKey}
                     >
                         {speakingFeedbackKey === 'correctness' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
-                        Speak Feedback
+                        <span className="ml-2">Speak Feedback</span>
                     </Button>
                   </AccordionContent>
                 </AccordionItem>
@@ -387,7 +397,7 @@ export default function Home() {
                         disabled={!!speakingFeedbackKey}
                     >
                         {speakingFeedbackKey === 'completeness' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
-                        Speak Feedback
+                        <span className="ml-2">Speak Feedback</span>
                     </Button>
                   </AccordionContent>
                 </AccordionItem>
@@ -402,7 +412,7 @@ export default function Home() {
                         disabled={!!speakingFeedbackKey}
                     >
                         {speakingFeedbackKey === 'clarity' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
-                        Speak Feedback
+                        <span className="ml-2">Speak Feedback</span>
                     </Button>
                   </AccordionContent>
                 </AccordionItem>
