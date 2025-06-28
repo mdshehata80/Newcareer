@@ -249,7 +249,7 @@ export default function Home() {
     <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-2xl">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary font-headline">AI Interview Coach</h1>
+          <h1 className="text-4xl font-bold text-primary font-headline">LinguaLens</h1>
           <p className="text-muted-foreground mt-2 font-body">Practice your interview skills with AI-powered feedback.</p>
         </header>
 
