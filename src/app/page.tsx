@@ -65,6 +65,18 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
+  const handleApiError = (err: unknown) => {
+    console.error("API Error:", err);
+    if (err instanceof Error && err.message.includes('GOOGLE_AI_API_KEY')) {
+        const desc = "The Google AI API Key is not configured. Please add the secret in your Firebase App Hosting settings.";
+        setError(desc);
+        toast({ variant: "destructive", title: "Configuration Error", description: "Missing API Key." });
+    } else {
+        setError("An unexpected error occurred with the AI service. Please try again later.");
+        toast({ variant: "destructive", title: "Service Error", description: "An unexpected error occurred." });
+    }
+  }
+
   const handleGenerateQuestion = async () => {
     if (!jobRole) {
       toast({ variant: "destructive", title: "No job role", description: "Please enter a job role to generate a question." });
@@ -77,9 +89,7 @@ export default function Home() {
       setQuestion(generatedQuestion);
       toast({ title: "Question Generated!", description: "The question has been filled in for you." });
     } catch (err) {
-      console.error("Error generating question:", err);
-      setError("An error occurred while generating the question. Please try again.");
-      toast({ variant: "destructive", title: "Generation Failed", description: "Could not generate a question." });
+      handleApiError(err);
     } finally {
       setIsGeneratingQuestion(false);
     }
@@ -97,9 +107,7 @@ export default function Home() {
       const audio = new Audio(audioDataUri);
       audio.play();
     } catch (err) {
-      console.error("Error generating speech:", err);
-      setError("An error occurred while generating speech. Please try again.");
-      toast({ variant: "destructive", title: "Speech Generation Failed", description: "Could not generate audio for the question." });
+      handleApiError(err);
     } finally {
       setIsSpeaking(false);
     }
@@ -203,9 +211,7 @@ export default function Home() {
       });
       setFeedback(result);
     } catch (err) {
-      console.error("Error analyzing response:", err);
-      setError("An error occurred during analysis. Please try again.");
-       toast({ variant: "destructive", title: "Analysis Failed", description: "An unexpected error occurred." });
+      handleApiError(err);
     } finally {
       setIsAnalyzing(false);
     }
@@ -227,9 +233,7 @@ export default function Home() {
         setSpeakingFeedbackKey(null);
       });
     } catch (err) {
-      console.error("Error generating feedback speech:", err);
-      setError("An error occurred while generating feedback speech.");
-      toast({ variant: "destructive", title: "Speech Generation Failed", description: "Could not generate audio for the feedback." });
+      handleApiError(err);
       setSpeakingFeedbackKey(null);
     }
   };
