@@ -1,19 +1,31 @@
-# Firebase Studio - LinguaLens
+# LinguaLens: AI Interview Coach
 
-This is a NextJS starter project for Firebase Studio that helps you practice for job interviews.
-
-This project is configured for Firebase App Hosting. Deployments are triggered automatically when you push to the `main` branch.
+This is a Next.js project for an AI-powered interview coach, built with Firebase App Hosting.
 
 ## Local Development
 
-To get started, take a look at `src/app/page.tsx`. You will need to create a `.env` file at the root of the project and add your `GOOGLE_AI_API_KEY`.
+To run this project locally, you will need to:
 
-## Deployment
+1.  Install the dependencies:
+    ```bash
+    npm install
+    ```
+2.  Create a `.env` file at the root of the project.
+3.  Add your Google AI API Key to the `.env` file:
+    ```
+    GOOGLE_AI_API_KEY="your_api_key_here"
+    ```
+4.  Start the development server:
+    ```bash
+    npm run dev
+    ```
 
-1.  Connect your GitHub repository.
-2.  Create a backend in Firebase App Hosting.
-3.  Ensure you have added the `GOOGLE_AI_API_KEY` as a secret in your Firebase App Hosting backend settings and granted the backend's service account the "Secret Manager Secret Accessor" role.
-4.  App Hosting will automatically build and deploy your application upon every push to the `main` branch.
+## Deployment with Firebase App Hosting
 
-The connection is now fully configured and ready for deployment!
-<!-- Final test commit -->
+This project is configured for Firebase App Hosting. Deployments are triggered automatically when you push to the `main` branch of your connected GitHub repository.
+
+Before your first deployment, ensure you have:
+
+1.  Created a backend in Firebase App Hosting and connected your GitHub repository.
+2.  Added your `GOOGLE_AI_API_KEY` as a secret in Secret Manager in your Google Cloud project.
+3.  Granted the backend's service account the **Secret Manager Secret Accessor** IAM role so it can access the API key secret.
