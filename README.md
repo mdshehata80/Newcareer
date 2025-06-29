@@ -33,7 +33,7 @@ The application will be available at `http://localhost:3000`.
 
 This project is configured for Firebase App Hosting. Deployments are triggered automatically when you push to the `main` branch of your connected GitHub repository.
 
-**Before your first deployment**, you must manually grant your backend permission to access your Google AI API Key.
+**Before your first deployment**, you must manually grant your backend permission to access your Google AI API Key. This only needs to be done once for each new backend.
 
 1.  **Create a secret in Secret Manager:**
     *   In your Google Cloud project, go to Secret Manager.
@@ -41,10 +41,10 @@ This project is configured for Firebase App Hosting. Deployments are triggered a
     *   Put your API key in the secret's value.
 
 2.  **Grant your backend access to the secret:**
-    *   Go to Cloud Run in the Google Cloud Console.
-    *   Find and click on your service (e.g., `ssrmockinterviewer...`).
-    *   Go to the **Security** tab of the latest revision and copy the **Service account** email.
-    *   Go back to Secret Manager, select the `GOOGLE_AI_API_KEY` secret, and **Add Principal**.
+    *   After creating your backend in Firebase App Hosting, a corresponding service is created in Cloud Run.
+    *   Go to **Cloud Run** in the Google Cloud Console. Find your service (e.g., `ssrmockinterviewer...`).
+    *   Click the service, go to the **Revisions** tab, select the latest revision, and find the **Service account** email under the **Security** tab. Copy this email.
+    *   Go back to **Secret Manager**, select the `GOOGLE_AI_API_KEY` secret, and **Add Principal**.
     *   Paste the service account email and give it the **`Secret Manager Secret Accessor`** role.
 
 Once these permissions are set, push a commit to the `main` branch to trigger a successful deployment.
