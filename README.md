@@ -33,18 +33,26 @@ The application will be available at `http://localhost:3000`.
 
 This project is configured for Firebase App Hosting. Deployments are triggered automatically when you push to the `main` branch of your connected GitHub repository.
 
-**Before your first deployment**, you must manually grant your backend permission to access your Google AI API Key. This only needs to be done once for each new backend.
+**IMPORTANT: Before your first deployment**, you must manually grant your backend permission to access your Google AI API Key. This only needs to be done once for each new backend. The first deployment will fail if this step is not completed first.
 
-1.  **Create a secret in Secret Manager:**
-    *   In your Google Cloud project, go to Secret Manager.
-    *   Create a secret with the **exact name** `GOOGLE_AI_API_KEY`.
-    *   Put your API key in the secret's value.
+### Step 1: Find the Backend's Service Account
 
-2.  **Grant your backend access to the secret:**
-    *   After creating your backend in Firebase App Hosting, a corresponding service is created in Cloud Run.
-    *   Go to **Cloud Run** in the Google Cloud Console. Find your service (e.g., `ssrmockinterviewer...`).
-    *   Click the service, go to the **Revisions** tab, select the latest revision, and find the **Service account** email under the **Security** tab. Copy this email.
-    *   Go back to **Secret Manager**, select the `GOOGLE_AI_API_KEY` secret, and **Add Principal**.
-    *   Paste the service account email and give it the **`Secret Manager Secret Accessor`** role.
+After creating your backend in Firebase App Hosting, a corresponding service is created in Cloud Run.
 
-Once these permissions are set, push a commit to the `main` branch to trigger a successful deployment.
+1.  Go to **Cloud Run** in the Google Cloud Console for your project.
+2.  It may take a few minutes for the service to appear. Wait and refresh the page.
+3.  Find your service. If your backend ID is `my-app`, the service name will look like `ssrmy-app-` followed by a random hash (e.g., `ssrinterviewtrainer-a1b2c3d4`).
+4.  Click the service name, go to the **Revisions** tab, select the latest revision, and find the **Service account** email under the **Security** tab. Copy this full email address.
+
+### Step 2: Grant Access to the API Key Secret
+
+1.  Go to **Secret Manager** in the Google Cloud Console.
+2.  Find the secret with the exact name **`GOOGLE_AI_API_KEY`**.
+3.  Select the secret, and in the permissions panel on the right, click **"Add Principal"**.
+4.  Paste the service account email you just copied.
+5.  In the "Select a role" dropdown, grant it the **`Secret Manager Secret Accessor`** role.
+6.  Click **"Save"**.
+
+### Step 3: Trigger the Deployment
+
+Once the permissions are set, push a commit to the `main` branch to trigger a successful deployment.
