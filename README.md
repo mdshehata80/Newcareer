@@ -37,4 +37,4 @@ Before your first deployment, ensure you have:
 
 1.  Created a backend in Firebase App Hosting and connected it to your GitHub repository.
 2.  In your Google Cloud project, created a secret in **Secret Manager** with the exact name `GOOGLE_AI_API_KEY` and placed your API key in its value.
-3.  Granted the backend's service account the **`Secret Manager Secret Accessor`** IAM role so it can access the API key secret. You can find the service account email in the **Settings** tab of your backend in the Firebase App Hosting console.
+3.  Granted the backend's service account the **`Secret Manager Secret Accessor`** IAM role so it can access the API key secret. You can find the service account email in the **Security** tab of your service's latest revision in the **Cloud Run** section of the Google Cloud Console.
