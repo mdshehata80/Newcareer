@@ -18,8 +18,8 @@ To run this project locally, you will need to:
     ```bash
     npm install
     ```
-2.  Create a `.env` file at the root of the project.
-3.  Add your Google AI API Key to the `.env` file. You can get a key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+2.  Create a `.env.local` file at the root of the project.
+3.  Add your Google AI API Key to the `.env.local` file. You can get a key from [Google AI Studio](https://aistudio.google.com/app/apikey).
     ```
     GOOGLE_AI_API_KEY="your_api_key_here"
     ```
