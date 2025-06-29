@@ -1,4 +1,4 @@
-# LinguaLens: AI Interview Coach
+# AI Interview Coach
 
 This is a Next.js project for an AI-powered interview coach, built with Firebase App Hosting. It allows users to practice answering interview questions and receive AI-generated feedback on their spoken responses.
 
@@ -41,7 +41,7 @@ After creating your backend in Firebase App Hosting, a corresponding service is 
 
 1.  Go to **Cloud Run** in the Google Cloud Console for your project.
 2.  It may take **2-5 minutes** for the service to appear. Wait and refresh the page.
-3.  Find your service. The name will **not** be an exact match of your Backend ID. If your backend ID is `my-app`, the service name will look like `ssrmy-app-` followed by a random hash (e.g., `ssrinterviewtrainer-a1b2c3d4`).
+3.  Find your service. If your backend ID is `my-app`, the service name will look like `ssrmy-app-` followed by a random hash (e.g., `ssrinterviewtrainer-a1b2c3d4`).
 4.  Click the service name, go to the **Revisions** tab, select the latest revision, and find the **Service account** email under the **Security** tab. **Copy this full email address.**
 
 ### Step 2: Grant Access to the API Key Secret
