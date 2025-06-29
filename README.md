@@ -42,7 +42,7 @@ This project is configured for Firebase App Hosting. Deployments are triggered a
 
 2.  **Grant your backend access to the secret:**
     *   Go to Cloud Run in the Google Cloud Console.
-    *   Find and click on your service (e.g., `mockinterviewer`).
+    *   Find and click on your service (e.g., `ssrmockinterviewer...`).
     *   Go to the **Security** tab of the latest revision and copy the **Service account** email.
     *   Go back to Secret Manager, select the `GOOGLE_AI_API_KEY` secret, and **Add Principal**.
     *   Paste the service account email and give it the **`Secret Manager Secret Accessor`** role.
