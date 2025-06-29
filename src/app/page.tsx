@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Loader2, Mic, Square, Volume2, Wand2, AlertCircle } from "lucide-react";
+import { Loader2, Mic, Square, Volume2, Wand2, AlertCircle, Sparkles } from "lucide-react";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
@@ -29,7 +29,7 @@ export default function Home() {
   const [feedback, setFeedback] = useState<AnalyzeAudioResponseOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [speakingFeedbackKey, setSpeakingFeedbackKey] = useState<string | null>(null);
-  
+
   const [speechRecognition, setSpeechRecognition] = useState<any>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -42,7 +42,7 @@ export default function Home() {
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     setSpeechRecognition(() => SpeechRecognition);
-    
+
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setError("Audio recording is not supported by your browser.");
       toast({ variant: "destructive", title: "Compatibility Error", description: "Audio recording is not supported." });
@@ -51,7 +51,7 @@ export default function Home() {
       setError((prev) => (prev ? prev + " Speech recognition is not supported." : "Speech recognition is not supported by your browser. Analysis may be less accurate."));
        toast({ variant: "destructive", title: "Compatibility Error", description: "Speech recognition not supported." });
     }
-    
+
     return () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
@@ -65,11 +65,11 @@ export default function Home() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+
   const handleApiError = (err: unknown) => {
     console.error("API Error:", err);
     const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
-    
+
     let userFriendlyError = "An unexpected error occurred with the AI service. Please try again later.";
     let toastDescription = "An unexpected error occurred.";
 
@@ -96,10 +96,12 @@ export default function Home() {
     setIsGeneratingQuestion(true);
     setError(null);
     setFeedback(null);
+    setQuestion("");
+    setAudioDataUri(null);
     try {
       const { question: generatedQuestion } = await generateInterviewQuestion(jobRole);
       setQuestion(generatedQuestion);
-      toast({ title: "Question Generated!", description: "The question has been filled in for you." });
+      toast({ title: "Question Generated!", description: "A new question is ready below." });
     } catch (err) {
       handleApiError(err);
     } finally {
@@ -109,7 +111,7 @@ export default function Home() {
 
   const handleSpeakQuestion = async () => {
     if (!question) {
-      toast({ variant: "destructive", title: "No question", description: "Please enter a question to speak." });
+      toast({ variant: "destructive", title: "No question", description: "There is no question to read aloud." });
       return;
     }
     setIsSpeaking(true);
@@ -124,7 +126,7 @@ export default function Home() {
       setIsSpeaking(false);
     }
   };
-  
+
   const startRecording = async () => {
     setError(null);
     setFeedback(null);
@@ -132,10 +134,10 @@ export default function Home() {
     setTranscript("");
 
     if (isRecording) return;
-    
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       audioChunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (event) => {
@@ -163,18 +165,15 @@ export default function Home() {
         const recognition = new speechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        
+
         recognition.onresult = (event: any) => {
-          let interimTranscript = '';
           let finalTranscript = transcript;
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
-            } else {
-              interimTranscript += event.results[i][0].transcript;
+              finalTranscript += event.results[i][0].transcript + ' ';
             }
           }
-          setTranscript(finalTranscript + interimTranscript);
+          setTranscript(finalTranscript);
         };
         recognition.start();
         recognitionRef.current = recognition;
@@ -189,7 +188,7 @@ export default function Home() {
 
   const stopRecording = () => {
     if (!isRecording || !mediaRecorderRef.current) return;
-    
+
     mediaRecorderRef.current.stop();
     if (recognitionRef.current) {
       recognitionRef.current.stop();
@@ -199,7 +198,7 @@ export default function Home() {
       clearInterval(timerIntervalRef.current);
     }
   };
-  
+
   const handleAnalyze = async () => {
     if (!audioDataUri || !question) {
       toast({
@@ -213,7 +212,7 @@ export default function Home() {
     setIsAnalyzing(true);
     setError(null);
     setFeedback(null);
-    
+
     try {
       const result = await analyzeAudioResponse({
         question,
@@ -230,8 +229,8 @@ export default function Home() {
   };
 
   const handleSpeakFeedback = async (text: string, key: string) => {
-    if (speakingFeedbackKey) return; 
-    
+    if (speakingFeedbackKey) return;
+
     setSpeakingFeedbackKey(key);
     setError(null);
     try {
@@ -257,194 +256,206 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-2xl">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary font-headline">LinguaLens: AI Interview Coach</h1>
-          <p className="text-muted-foreground mt-2 font-body">Your AI-powered coach for mastering interviews.</p>
-        </header>
+    <div className="flex min-h-screen w-full flex-col items-center bg-gray-50 font-sans text-gray-900">
+      <header className="w-full bg-white shadow-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-8 w-8 text-primary" />
+            <h1 className="text-xl font-bold tracking-tighter text-gray-800">LinguaLens Interview Coach</h1>
+          </div>
+        </div>
+      </header>
 
-        <Card className="w-full shadow-lg">
-          <CardContent className="p-6 space-y-6">
-            
-            <div className="space-y-2">
-              <label htmlFor="job-role-input" className="font-semibold text-lg font-headline">Auto-generate Question</label>
-               <p className="text-sm text-muted-foreground">Enter a job role to generate a common interview question.</p>
-              <div className="flex items-center gap-2">
+      <main className="flex w-full flex-1 flex-col items-center p-4 sm:p-6 md:p-8">
+        <div className="w-full max-w-4xl space-y-8">
+          
+          <Card className="w-full shadow-md border-t-4 border-primary">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Start Your Practice Session</CardTitle>
+              <CardDescription>Enter a job role to generate a relevant interview question.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-start gap-4 sm:flex-row">
                 <Input
                   id="job-role-input"
-                  placeholder="e.g., Software Engineer"
+                  placeholder="e.g., Product Manager, Data Scientist"
                   value={jobRole}
                   onChange={(e) => setJobRole(e.target.value)}
-                  className="text-base"
+                  className="flex-grow text-base"
                   disabled={isGeneratingQuestion}
                 />
-                <Button onClick={handleGenerateQuestion} disabled={!jobRole || isGeneratingQuestion}>
+                <Button onClick={handleGenerateQuestion} disabled={!jobRole || isGeneratingQuestion} className="w-full sm:w-auto">
                    {isGeneratingQuestion ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <Wand2 className="mr-2 h-4 w-4" />
                   )}
-                  Generate
+                  Generate Question
                 </Button>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <Separator />
+          {question && (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Interview Question</span>
+                      <Button variant="ghost" size="icon" onClick={handleSpeakQuestion} disabled={!question || isSpeaking}>
+                        {isSpeaking ? <Loader2 className="h-5 w-5 animate-spin" /> : <Volume2 className="h-5 w-5"/>}
+                        <span className="sr-only">Speak question</span>
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg font-medium text-gray-700">{question}</p>
+                  </CardContent>
+                </Card>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label htmlFor="question-input" className="font-semibold text-lg font-headline">1. Your Question</label>
-                <Button variant="ghost" size="icon" onClick={handleSpeakQuestion} disabled={!question || isSpeaking}>
-                  {isSpeaking ? <Loader2 className="h-5 w-5 animate-spin" /> : <Volume2 className="h-5 w-5"/>}
-                  <span className="sr-only">Speak question</span>
-                </Button>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Model Answer (Optional)</CardTitle>
+                    <CardDescription>For more accurate feedback, provide an ideal answer.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                     <Textarea 
+                      id="model-answer-input"
+                      placeholder="e.g., In my previous role at XYZ Corp..." 
+                      value={modelAnswer}
+                      onChange={(e) => setModelAnswer(e.target.value)}
+                      className="min-h-[100px] text-base"
+                    />
+                  </CardContent>
+                </Card>
               </div>
-              <p className="text-sm text-muted-foreground">Type your own question below, or generate one using the tool above.</p>
-              <Textarea 
-                id="question-input"
-                placeholder="e.g., Tell me about a time you handled a difficult project." 
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                className="min-h-[80px] text-base"
-              />
-            </div>
 
-            <div className="space-y-2">
-              <label htmlFor="model-answer-input" className="font-semibold text-lg font-headline">2. Model Answer (Optional)</label>
-              <p className="text-sm text-muted-foreground">Provide an ideal answer to the question for more accurate feedback.</p>
-              <Textarea 
-                id="model-answer-input"
-                placeholder="e.g., In my previous role at XYZ Corp..." 
-                value={modelAnswer}
-                onChange={(e) => setModelAnswer(e.target.value)}
-                className="min-h-[80px] text-base"
-              />
-            </div>
+              <div className="space-y-6">
+                <Card className="bg-primary/5">
+                   <CardHeader>
+                    <CardTitle>Record Your Answer</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center justify-center gap-4">
+                     <Button 
+                        onClick={isRecording ? stopRecording : startRecording}
+                        size="lg"
+                        className="h-20 w-20 rounded-full flex flex-col items-center justify-center gap-1 text-sm shadow-lg transition-all duration-300 ease-in-out hover:scale-105"
+                        variant={isRecording ? 'destructive' : 'default'}
+                      >
+                        {isRecording ? <Square className="h-6 w-6"/> : <Mic className="h-6 w-6"/>}
+                      </Button>
+                      <div className="h-6">
+                        {isRecording && <div className="font-mono text-xl text-center text-destructive animate-pulse">{formatTime(recordingSeconds)}</div>}
+                      </div>
+                      <div className="w-full">
+                        {!isRecording && audioDataUri && <audio controls src={audioDataUri} className="w-full" />}
+                      </div>
+                  </CardContent>
+                </Card>
 
-            <div className="space-y-4">
-              <p className="font-semibold text-lg font-headline">3. Record Your Answer</p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 p-4 rounded-lg bg-muted/50">
-                <Button 
-                  onClick={isRecording ? stopRecording : startRecording}
-                  size="lg"
-                  className="w-24 h-24 rounded-full flex flex-col gap-1 transition-all duration-300 ease-in-out hover:scale-105"
-                  variant={isRecording ? 'destructive' : 'default'}
-                >
-                  {isRecording ? (
-                    <>
-                      <Square className="h-8 w-8"/>
-                      <span>Stop</span>
-                    </>
+                 <Button onClick={handleAnalyze} disabled={!audioDataUri || isAnalyzing || !question} className="w-full py-6 text-lg">
+                  {isAnalyzing ? (
+                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Analyzing Your Answer...</>
                   ) : (
-                    <>
-                      <Mic className="h-8 w-8"/>
-                      <span>Record</span>
-                    </>
+                    "Get Feedback"
                   )}
                 </Button>
-                {isRecording && (
-                  <div className="font-mono text-2xl text-center w-32 text-destructive animate-pulse">{formatTime(recordingSeconds)}</div>
-                )}
-                {!isRecording && audioDataUri && (
-                    <audio controls src={audioDataUri} className="w-full sm:w-auto" />
-                )}
               </div>
             </div>
+          )}
 
-            <div className="space-y-2">
-              <p className="font-semibold text-lg font-headline">4. Get Feedback</p>
-              <Button onClick={handleAnalyze} disabled={!audioDataUri || isAnalyzing || !question} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                {isAnalyzing ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing...</>
-                ) : (
-                  <><Wand2 className="mr-2 h-4 w-4" /> Analyze Answer</>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          {isAnalyzing && (
+            <Card className="mt-8 text-center">
+              <CardContent className="p-8">
+                <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+                <p className="mt-4 text-lg font-medium text-gray-600">Analyzing your response... please wait.</p>
+              </CardContent>
+            </Card>
+          )}
 
-        {feedback && (
-          <Card className="mt-8 shadow-lg">
-            <CardHeader>
-              <CardTitle className="font-headline">Analysis Feedback</CardTitle>
-              <CardDescription>Here's what our AI thought of your answer.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger className="text-lg font-semibold">Correctness</AccordionTrigger>
-                  <AccordionContent className="text-base text-muted-foreground space-y-3">
-                    <p>{feedback.correctness}</p>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleSpeakFeedback(feedback.correctness, 'correctness')}
-                        disabled={!!speakingFeedbackKey}
-                    >
-                        {speakingFeedbackKey === 'correctness' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
-                        <span className="ml-2">Speak Feedback</span>
-                    </Button>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger className="text-lg font-semibold">Completeness</AccordionTrigger>
-                  <AccordionContent className="text-base text-muted-foreground space-y-3">
-                    <p>{feedback.completeness}</p>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleSpeakFeedback(feedback.completeness, 'completeness')}
-                        disabled={!!speakingFeedbackKey}
-                    >
-                        {speakingFeedbackKey === 'completeness' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
-                        <span className="ml-2">Speak Feedback</span>
-                    </Button>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger className="text-lg font-semibold">Clarity</AccordionTrigger>
-                  <AccordionContent className="text-base text-muted-foreground space-y-3">
-                    <p>{feedback.clarity}</p>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleSpeakFeedback(feedback.clarity, 'clarity')}
-                        disabled={!!speakingFeedbackKey}
-                    >
-                        {speakingFeedbackKey === 'clarity' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
-                        <span className="ml-2">Speak Feedback</span>
-                    </Button>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-               {transcript && (
-                  <div className="mt-6">
-                    <h4 className="font-semibold text-md font-headline">Your Answer Transcript:</h4>
-                    <blockquote className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md mt-2 border-l-4 border-primary italic">
+          {feedback && (
+            <Card className="mt-8 shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">Analysis Feedback</CardTitle>
+                <CardDescription>Here's what our AI coach thought of your answer.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                 {transcript && (
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-lg">Your Answer Transcript:</h4>
+                    <blockquote className="text-sm text-gray-600 p-3 bg-gray-100 rounded-md mt-2 border-l-4 border-primary italic">
                       {transcript}
                     </blockquote>
                   </div>
                 )}
-            </CardContent>
-          </Card>
-        )}
-        
-        {error && (
-            <Card className="mt-8 border-destructive bg-destructive/10">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-destructive font-headline">
-                        <AlertCircle />
-                        An Error Occurred
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-destructive/90">{error}</p>
-                </CardContent>
+                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger className="text-xl font-semibold">Correctness</AccordionTrigger>
+                    <AccordionContent className="text-base text-gray-600 space-y-3 pt-2">
+                      <p>{feedback.correctness}</p>
+                      <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleSpeakFeedback(feedback.correctness, 'correctness')}
+                          disabled={!!speakingFeedbackKey}
+                      >
+                          {speakingFeedbackKey === 'correctness' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
+                          <span className="ml-2">Read Aloud</span>
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger className="text-xl font-semibold">Completeness</AccordionTrigger>
+                    <AccordionContent className="text-base text-gray-600 space-y-3 pt-2">
+                      <p>{feedback.completeness}</p>
+                      <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleSpeakFeedback(feedback.completeness, 'completeness')}
+                          disabled={!!speakingFeedbackKey}
+                      >
+                          {speakingFeedbackKey === 'completeness' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
+                          <span className="ml-2">Read Aloud</span>
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger className="text-xl font-semibold">Clarity</AccordionTrigger>
+                    <AccordionContent className="text-base text-gray-600 space-y-3 pt-2">
+                      <p>{feedback.clarity}</p>
+                      <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleSpeakFeedback(feedback.clarity, 'clarity')}
+                          disabled={!!speakingFeedbackKey}
+                      >
+                          {speakingFeedbackKey === 'clarity' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4"/>}
+                          <span className="ml-2">Read Aloud</span>
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
             </Card>
-        )}
-      </div>
-    </main>
+          )}
+
+          {error && (
+              <Card className="mt-8 border-destructive bg-destructive/10">
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-destructive">
+                          <AlertCircle />
+                          An Error Occurred
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-destructive/90">{error}</p>
+                  </CardContent>
+              </Card>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
